@@ -1,0 +1,31 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 1. Install Flutter SDK (includes Dart)
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      # 2. Install dependencies using Flutter command
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 3. Analyze code
+      - name: Analyze project source
+        run: flutter analyze
+
+      # 4. Run tests
+      - name: Run tests
+        run: flutter test
