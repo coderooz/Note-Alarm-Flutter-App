@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'task_model.dart';
 
-/// Single task row widget
 class TaskTile extends StatelessWidget {
   final TaskModel task;
   final VoidCallback onToggle;
@@ -17,28 +16,16 @@ class TaskTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: UniqueKey(),
+      key: ValueKey(task.id),
       onDismissed: (_) => onDelete(),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
+      background: Container(color: Colors.red),
       child: Card(
         child: ListTile(
-          leading: Checkbox(
-            value: task.isDone,
-            shape: const CircleBorder(),
-            onChanged: (_) => onToggle(),
-          ),
+          leading: Checkbox(value: task.done, onChanged: (_) => onToggle()),
           title: Text(
             task.title,
             style: TextStyle(
-              decoration: task.isDone ? TextDecoration.lineThrough : null,
+              decoration: task.done ? TextDecoration.lineThrough : null,
             ),
           ),
           onTap: onToggle,

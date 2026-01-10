@@ -9,7 +9,7 @@ class NoteAlarmApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Note-Alarm',
+      title: 'Note Alarm',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const HomeShell(),
