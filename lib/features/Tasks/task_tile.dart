@@ -19,7 +19,15 @@ class TaskTile extends StatelessWidget {
     return Dismissible(
       key: UniqueKey(),
       onDismissed: (_) => onDelete(),
-      background: Container(color: Colors.red),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
       child: Card(
         child: ListTile(
           leading: Checkbox(

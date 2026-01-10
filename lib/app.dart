@@ -3,7 +3,6 @@ import 'core/theme/app_theme.dart';
 import 'features/alarm/alarm_page.dart';
 import 'features/tasks/task_page.dart';
 
-/// Root widget of the Note-Alarm application
 class NoteAlarmApp extends StatelessWidget {
   const NoteAlarmApp({super.key});
 
@@ -18,7 +17,6 @@ class NoteAlarmApp extends StatelessWidget {
   }
 }
 
-/// Bottom-navigation shell
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -27,20 +25,18 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int currentIndex = 0;
+  int index = 0;
 
   final pages = const [AlarmScreen(), TaskScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(currentIndex == 0 ? 'Alarms' : 'Tasks')),
-      body: pages[currentIndex],
+      appBar: AppBar(title: Text(index == 0 ? 'Alarms' : 'Tasks')),
+      body: pages[index],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => currentIndex = index);
-        },
+        selectedIndex: index,
+        onDestinationSelected: (i) => setState(() => index = i),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.alarm), label: 'Alarms'),
           NavigationDestination(icon: Icon(Icons.task_alt), label: 'Tasks'),

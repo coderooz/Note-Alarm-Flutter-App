@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Alarm entity model
+/// Alarm entity model (notification-backed)
 class AlarmModel {
-  TimeOfDay time;
-  String label;
-  bool isActive;
+  final TimeOfDay time;
+  final int notificationId;
 
-  AlarmModel({required this.time, this.label = 'Alarm', this.isActive = true});
+  AlarmModel({required this.time, required this.notificationId});
 }

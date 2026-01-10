@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'alarm_model.dart';
-import 'alarm_tile.dart';
+import '../../core/notifications/notification_service.dart';
 
-/// Alarm management screen
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({super.key});
 
@@ -12,47 +10,7 @@ class AlarmScreen extends StatefulWidget {
 }
 
 class _AlarmScreenState extends State<AlarmScreen> {
-  final List<AlarmModel> alarms = [];
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startAlarmWatcher();
-  }
-
-  /// Periodic alarm simulation (foreground only)
-  void _startAlarmWatcher() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      final now = TimeOfDay.now();
-
-      for (final alarm in alarms) {
-        if (alarm.isActive &&
-            alarm.time.hour == now.hour &&
-            alarm.time.minute == now.minute) {
-          _triggerAlarm(alarm);
-        }
-      }
-    });
-  }
-
-  void _triggerAlarm(AlarmModel alarm) {
-    setState(() => alarm.isActive = false);
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('⏰ Alarm'),
-        content: Text('Time for ${alarm.label}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Dismiss'),
-          ),
-        ],
-      ),
-    );
-  }
+  final List<AlarmModel> _alarms = [];
 
   Future<void> _addAlarm() async {
     final picked = await showTimePicker(
@@ -60,22 +18,45 @@ class _AlarmScreenState extends State<AlarmScreen> {
       initialTime: TimeOfDay.now(),
     );
 
-    if (picked != null) {
-      setState(() {
-        alarms.add(AlarmModel(time: picked));
-        alarms.sort(
-          (a, b) => (a.time.hour * 60 + a.time.minute).compareTo(
-            b.time.hour * 60 + b.time.minute,
-          ),
-        );
-      });
+    if (picked == null) return;
+
+    final now = DateTime.now();
+    DateTime scheduled = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      picked.hour,
+      picked.minute,
+    );
+
+    // If selected time already passed, schedule for tomorrow
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
     }
+
+    final id = scheduled.millisecondsSinceEpoch ~/ 1000;
+
+    await NotificationService.scheduleAlarm(
+      id: id,
+      dateTime: scheduled,
+      title: '⏰ Alarm',
+      body: 'It\'s time!',
+    );
+
+    setState(() {
+      _alarms.add(AlarmModel(time: picked, notificationId: id));
+
+      _alarms.sort((a, b) {
+        final aMin = a.time.hour * 60 + a.time.minute;
+        final bMin = b.time.hour * 60 + b.time.minute;
+        return aMin.compareTo(bMin);
+      });
+    });
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<void> _deleteAlarm(int index) async {
+    await NotificationService.cancel(_alarms[index].notificationId);
+    setState(() => _alarms.removeAt(index));
   }
 
   @override
@@ -86,17 +67,39 @@ class _AlarmScreenState extends State<AlarmScreen> {
         icon: const Icon(Icons.add_alarm),
         label: const Text('Add Alarm'),
       ),
-      body: alarms.isEmpty
+      body: _alarms.isEmpty
           ? const Center(child: Text('No alarms set'))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: alarms.length,
-              itemBuilder: (_, index) {
-                return AlarmTile(
-                  alarm: alarms[index],
-                  onDelete: () => setState(() => alarms.removeAt(index)),
-                  onToggle: (value) =>
-                      setState(() => alarms[index].isActive = value),
+              itemCount: _alarms.length,
+              itemBuilder: (context, index) {
+                final alarm = _alarms[index];
+
+                return Dismissible(
+                  key: ValueKey(alarm.notificationId),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (_) => _deleteAlarm(index),
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    color: Colors.red,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: ListTile(
+                      title: Text(
+                        alarm.time.format(context),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      trailing: const Icon(Icons.notifications_active),
+                    ),
+                  ),
                 );
               },
             ),
