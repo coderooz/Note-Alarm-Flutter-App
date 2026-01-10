@@ -22,11 +22,15 @@ class AlarmModel {
   };
 
   factory AlarmModel.fromJson(Map<String, dynamic> json) {
+    final scheduled = DateTime.parse(json['scheduledAt']);
+
     return AlarmModel(
-      time: TimeOfDay(hour: json['hour'], minute: json['minute']),
-      id: json['id'],
-      scheduledAt: DateTime.parse(json['scheduledAt']),
-      active: json['active'],
+      time: TimeOfDay(hour: json['hour'] ?? 0, minute: json['minute'] ?? 0),
+      id:
+          json['id'] ??
+          scheduled.millisecondsSinceEpoch ~/ 1000, // backward-safe
+      scheduledAt: scheduled,
+      active: json['active'] ?? false,
     );
   }
 }

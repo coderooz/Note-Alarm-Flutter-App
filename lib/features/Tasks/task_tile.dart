@@ -18,7 +18,12 @@ class TaskTile extends StatelessWidget {
     return Dismissible(
       key: ValueKey(task.id),
       onDismissed: (_) => onDelete(),
-      background: Container(color: Colors.red),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        color: Colors.red,
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
       child: Card(
         child: ListTile(
           leading: Checkbox(value: task.done, onChanged: (_) => onToggle()),

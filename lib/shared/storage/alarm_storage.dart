@@ -7,7 +7,7 @@ class AlarmStorage {
 
   static Future<void> save(List<AlarmModel> alarms) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(
+    await prefs.setStringList(
       _key,
       alarms.map((e) => jsonEncode(e.toJson())).toList(),
     );
@@ -17,6 +17,7 @@ class AlarmStorage {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getStringList(_key);
     if (data == null) return [];
+
     return data.map((e) => AlarmModel.fromJson(jsonDecode(e))).toList();
   }
 }
