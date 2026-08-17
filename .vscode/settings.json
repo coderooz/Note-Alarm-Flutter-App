@@ -1,0 +1,39 @@
+{
+    "dart.addSdkToTerminalPath": true,
+    "dart.flutterCreateAndroidLanguage": "kotlin",
+    "dart.formatOnSave": true,
+    "dart.previewFlutterUiGuides": true,
+
+    "editor.autoClosingBrackets": "always",
+    "editor.acceptSuggestionOnEnter": "smart",
+    "editor.autoIndent": "full",
+    "editor.allowVariableFonts": true,
+
+    "cmake.ignoreCMakeListsMissing": true,
+
+    "files.enableTrash": true,
+    "files.autoGuessEncoding": true,
+    "files.autoSaveDelay": 3000,
+    "files.autoSave": "afterDelay",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/flutter/ephemeral": true,
+        "**/Flutter/ephemeral": true,
+        "**/.symlinks": true,
+        "**/.plugin_symlinks": true,
+        "**/.dart_tool": true,
+        "**/.idea": true,
+        "**/build": true
+    },
+
+    "[dart]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.wordWrap": "off"
+    }
+}

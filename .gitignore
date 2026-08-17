@@ -43,6 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
 
-# Editor
-.vscode/
+# Release signing keystore (never commit real credentials)
+android/key.properties
+*.jks
+*.keystore
+
+# MCP runtime artifacts (local tooling, not project source)
+.mcp-runtime.json
+docs-repo.project-mcp.json

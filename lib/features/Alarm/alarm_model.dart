@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AlarmModel {
-  final TimeOfDay time;
   final int id;
   final DateTime scheduledAt;
   bool active;
 
-  AlarmModel({
-    required this.time,
-    required this.id,
-    required this.scheduledAt,
-    this.active = true,
-  });
+  AlarmModel({required this.id, required this.scheduledAt, this.active = true});
+
+  TimeOfDay get time => TimeOfDay.fromDateTime(scheduledAt);
 
   Map<String, dynamic> toJson() => {
     'hour': time.hour,
@@ -22,15 +18,16 @@ class AlarmModel {
   };
 
   factory AlarmModel.fromJson(Map<String, dynamic> json) {
-    final scheduled = DateTime.parse(json['scheduledAt']);
+    final scheduled =
+        DateTime.tryParse(json['scheduledAt'] as String? ?? '') ??
+        DateTime.now();
 
     return AlarmModel(
-      time: TimeOfDay(hour: json['hour'] ?? 0, minute: json['minute'] ?? 0),
       id:
-          json['id'] ??
+          json['id'] as int? ??
           scheduled.millisecondsSinceEpoch ~/ 1000, // backward-safe
       scheduledAt: scheduled,
-      active: json['active'] ?? false,
+      active: json['active'] as bool? ?? false,
     );
   }
 }

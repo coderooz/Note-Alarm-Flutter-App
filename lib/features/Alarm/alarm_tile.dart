@@ -4,18 +4,30 @@ import 'alarm_model.dart';
 class AlarmTile extends StatelessWidget {
   final AlarmModel alarm;
   final VoidCallback onDelete;
-  final VoidCallback onEdit; // 1. Add Edit Callback
+  final VoidCallback onEdit;
   final ValueChanged<bool> onToggle;
+  final Future<bool> Function() onConfirmDelete;
 
   const AlarmTile({
     super.key,
     required this.alarm,
     required this.onDelete,
-    required this.onEdit, // Require it here
+    required this.onEdit,
     required this.onToggle,
+    required this.onConfirmDelete,
   });
 
   Duration _getRemaining() => alarm.scheduledAt.difference(DateTime.now());
+
+  String _formatRemaining(Duration remaining) {
+    final days = remaining.inDays;
+    final hours = remaining.inHours % 24;
+    final minutes = remaining.inMinutes % 60;
+
+    if (days > 0) return '${days}d ${hours}h left';
+    if (hours > 0) return '${hours}h ${minutes}m left';
+    return '${minutes}m left';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +35,7 @@ class AlarmTile extends StatelessWidget {
 
     return Dismissible(
       key: ValueKey(alarm.id),
-      // 2. Allow swiping in both directions
       direction: DismissDirection.horizontal,
-
-      // 3. Left-to-Right Swipe (EDIT) - Green Background
       background: Container(
         color: Colors.green,
         alignment: Alignment.centerLeft,
@@ -45,8 +54,6 @@ class AlarmTile extends StatelessWidget {
           ],
         ),
       ),
-
-      // 4. Right-to-Left Swipe (DELETE) - Red Background
       secondaryBackground: Container(
         color: Colors.red,
         alignment: Alignment.centerRight,
@@ -66,25 +73,14 @@ class AlarmTile extends StatelessWidget {
           ],
         ),
       ),
-
-      // 5. Handle the Logic
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          // EDIT ACTION:
-          // Call the edit function
           onEdit();
-          // Return false so the item does NOT disappear from the list
           return false;
-        } else {
-          // DELETE ACTION:
-          // Return true to confirm we want to remove this item
-          return true;
         }
+        return onConfirmDelete();
       },
-
-      // This is only called if confirmDismiss returns true (i.e., Delete)
       onDismissed: (_) => onDelete(),
-
       child: Card(
         child: ListTile(
           title: Text(
@@ -92,7 +88,7 @@ class AlarmTile extends StatelessWidget {
             style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
           ),
           subtitle: alarm.active && remaining.inSeconds > 0
-              ? Text('${remaining.inHours}h ${remaining.inMinutes % 60}m left')
+              ? Text(_formatRemaining(remaining))
               : const Text('Inactive'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

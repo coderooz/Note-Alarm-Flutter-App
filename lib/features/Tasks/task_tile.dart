@@ -5,18 +5,21 @@ class TaskTile extends StatelessWidget {
   final TaskModel task;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
+  final Future<bool> Function() onConfirmDelete;
 
   const TaskTile({
     super.key,
     required this.task,
     required this.onToggle,
     required this.onDelete,
+    required this.onConfirmDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
       key: ValueKey(task.id),
+      confirmDismiss: (_) => onConfirmDelete(),
       onDismissed: (_) => onDelete(),
       background: Container(
         alignment: Alignment.centerRight,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'features/about/about_page.dart';
 import 'features/alarm/alarm_page.dart';
 import 'features/tasks/task_page.dart';
 
@@ -12,6 +13,8 @@ class NoteAlarmApp extends StatelessWidget {
       title: 'Note Alarm',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const HomeShell(),
     );
   }
@@ -32,7 +35,18 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(index == 0 ? 'Alarms' : 'Tasks')),
+      appBar: AppBar(
+        title: Text(index == 0 ? 'Alarms' : 'Tasks'),
+        actions: [
+          IconButton(
+            tooltip: 'About',
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const AboutPage())),
+          ),
+        ],
+      ),
       body: pages[index],
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,

@@ -1,4 +1,4 @@
-package com.example.note_alarm
+package `in`.coderooz.notealarm
 
 import io.flutter.embedding.android.FlutterActivity
 

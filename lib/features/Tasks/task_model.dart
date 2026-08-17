@@ -9,9 +9,9 @@ class TaskModel {
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
-      id: json['id'],
-      title: json['title'],
-      done: json['done'] ?? false,
+      id: json['id'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+      title: json['title'] as String? ?? '',
+      done: json['done'] as bool? ?? false,
     );
   }
 }

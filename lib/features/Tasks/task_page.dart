@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../shared/storage/task_storage.dart';
+import '../../shared/widgets/empty_state.dart';
 import 'task_model.dart';
 import 'task_tile.dart';
 
@@ -19,6 +20,12 @@ class _TaskScreenState extends State<TaskScreen> {
   void initState() {
     super.initState();
     _loadTasks();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTasks() async {
@@ -59,6 +66,27 @@ class _TaskScreenState extends State<TaskScreen> {
     _saveTasks();
   }
 
+  Future<bool> _confirmDelete() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete task?'),
+        content: const Text('This task will be removed.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +96,7 @@ class _TaskScreenState extends State<TaskScreen> {
         label: const Text('New Task'),
       ),
       body: tasks.isEmpty
-          ? const Center(child: Text('No tasks yet'))
+          ? const EmptyState(icon: Icons.task_alt, message: 'No tasks yet')
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: tasks.length,
@@ -76,6 +104,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 return TaskTile(
                   task: tasks[index],
                   onToggle: () => _toggleTask(index),
+                  onConfirmDelete: _confirmDelete,
                   onDelete: () => _deleteTask(index),
                 );
               },
@@ -87,12 +116,12 @@ class _TaskScreenState extends State<TaskScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => Padding(
+      builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
           top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

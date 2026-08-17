@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -10,16 +12,25 @@ class NotificationService {
   /// Initialize notifications + timezone
   static Future<void> init() async {
     tz.initializeTimeZones();
+    await _setLocalTimeZone();
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/launcher_icon',
     );
 
-    const settings = InitializationSettings(android: androidSettings);
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const settings = InitializationSettings(
+      android: androidSettings,
+      iOS: darwinSettings,
+    );
 
     await _plugin.initialize(settings);
 
-    // 🔔 REQUIRED notification channel
     const channel = AndroidNotificationChannel(
       'alarm_channel',
       'Alarm Notifications',
@@ -37,7 +48,33 @@ class NotificationService {
     await android?.createNotificationChannel(channel);
   }
 
-  /// Android 12+ requires user approval for exact alarms
+  /// Configure the timezone database so alarms fire at the correct local time.
+  static Future<void> _setLocalTimeZone() async {
+    try {
+      final timezone = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezone.identifier));
+    } catch (e) {
+      // Fall back to UTC; scheduling still works, times may be offset.
+      debugPrint('Failed to resolve local timezone: $e');
+    }
+  }
+
+  /// Android 13+ requires runtime approval to post notifications.
+  static Future<bool> requestNotificationPermission() async {
+    if (!Platform.isAndroid) return true;
+
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    if (androidPlugin == null) return false;
+
+    final granted = await androidPlugin.requestNotificationsPermission();
+    return granted ?? false;
+  }
+
+  /// Android 12+ requires user approval for exact alarms.
   static Future<bool> requestExactAlarmPermission() async {
     if (!Platform.isAndroid) return true;
 
@@ -49,12 +86,10 @@ class NotificationService {
     if (androidPlugin == null) return false;
 
     final canSchedule = await androidPlugin.canScheduleExactNotifications();
-
     if (canSchedule == true) return true;
 
-    // Opens system permission screen
-    await androidPlugin.requestExactAlarmsPermission();
-    return false;
+    final granted = await androidPlugin.requestExactAlarmsPermission();
+    return granted ?? false;
   }
 
   /// Schedule exact alarm (works when app is closed)
@@ -82,7 +117,6 @@ class NotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      
     );
   }
 

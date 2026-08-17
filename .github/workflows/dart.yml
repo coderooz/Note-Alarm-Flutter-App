@@ -13,10 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      # 1. Install Flutter SDK (includes Dart)
+      # 1. Install Flutter SDK (includes Dart), with pub cache
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
           
       # 2. Install dependencies using Flutter command
       - name: Install dependencies

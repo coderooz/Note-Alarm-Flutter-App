@@ -7,7 +7,7 @@ class TaskStorage {
 
   static Future<void> save(List<TaskModel> tasks) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(
+    await prefs.setStringList(
       _key,
       tasks.map((e) => jsonEncode(e.toJson())).toList(),
     );
