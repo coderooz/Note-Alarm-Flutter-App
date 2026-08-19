@@ -25,6 +25,7 @@ The app runs fully **on-device**: alarms are scheduled with `flutter_local_notif
 - **Active State Toggle:** Enable or disable alarms with instant visual feedback.
 - **Exact Notifications:** Alarms fire via `flutter_local_notifications` even when the app is closed.
 - **In-App Ringing:** A periodic check triggers the alarm dialog and sound while the app is active.
+- **Snooze:** Reschedules a ringing alarm +5 minutes.
 - **Swipe-to-Edit / Swipe-to-Delete:** Intuitive gestures with confirmation dialogs.
 - **Remaining Time:** Each alarm shows how much time is left (days/hours/minutes).
 
@@ -156,7 +157,6 @@ lib/
 ## 🔮 Planned Enhancements
 
 * [ ] Alarm labels & repeat options
-* [ ] Snooze logic (reschedule for +5 minutes)
 * [ ] Task categories and priorities
 * [ ] Manual theme override (light/dark/system toggle)
 
