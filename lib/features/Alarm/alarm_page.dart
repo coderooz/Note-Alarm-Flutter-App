@@ -123,25 +123,35 @@ class _AlarmScreenState extends State<AlarmScreen> {
       dismissible: false,
       actions: [
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             _audioPlayer.stop();
             _controller.dismissRinging();
             Navigator.pop(context);
             _dialogVisible = false;
+            _showNextRinging();
           },
           child: const Text('Dismiss'),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             _audioPlayer.stop();
-            _controller.dismissRinging();
+            await _controller.snooze();
+            if (!mounted) return;
             Navigator.pop(context);
             _dialogVisible = false;
+            _showNextRinging();
           },
           child: const Text('Snooze (5 min)'),
         ),
       ],
     );
+  }
+
+  void _showNextRinging() {
+    final next = _controller.ringing;
+    if (next != null && mounted && !_dialogVisible) {
+      _showAlarmDialog(next);
+    }
   }
 
   @override

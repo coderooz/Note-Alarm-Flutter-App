@@ -28,5 +28,27 @@ void main() {
       expect(restored.title, 'Task');
       expect(restored.done, false);
     });
+
+    test('compareForDisplay sorts done tasks last and is stable', () {
+      final a = TaskModel(id: 1, title: 'A', done: false);
+      final b = TaskModel(id: 2, title: 'B', done: false);
+      final c = TaskModel(id: 3, title: 'C', done: true);
+      final d = TaskModel(id: 4, title: 'D', done: true);
+
+      final tasks = [c, b, d, a];
+      tasks.sort(TaskModel.compareForDisplay);
+
+      expect(tasks.map((t) => t.id).toList(), [2, 1, 3, 4]);
+    });
+
+    test('compareForDisplay is transitive for equal-state tasks', () {
+      final done = [TaskModel(id: 1, title: 'X', done: true)];
+      final notDone = [TaskModel(id: 2, title: 'Y', done: false)];
+
+      expect(TaskModel.compareForDisplay(done[0], done[0]), 0);
+      expect(TaskModel.compareForDisplay(notDone[0], notDone[0]), 0);
+      expect(TaskModel.compareForDisplay(notDone[0], done[0]), -1);
+      expect(TaskModel.compareForDisplay(done[0], notDone[0]), 1);
+    });
   });
 }

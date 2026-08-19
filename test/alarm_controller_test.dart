@@ -34,5 +34,15 @@ void main() {
       expect(controller.alarms[1].id, 2);
       expect(controller.alarms[1].active, false);
     });
+
+    test('dismissRinging on an empty queue is a no-op', () async {
+      SharedPreferences.setMockInitialValues({});
+      final controller = AlarmController();
+      await controller.load();
+
+      expect(controller.ringing, isNull);
+      controller.dismissRinging();
+      expect(controller.ringing, isNull);
+    });
   });
 }

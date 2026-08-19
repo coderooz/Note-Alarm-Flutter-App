@@ -7,13 +7,13 @@ import 'alarm_model.dart';
 
 class AlarmController extends ChangeNotifier {
   final List<AlarmModel> _alarms = [];
+  final List<AlarmModel> _ringingQueue = [];
   Timer? _ticker;
-  AlarmModel? _ringing;
 
   List<AlarmModel> get alarms => List.unmodifiable(_alarms);
 
-  /// The alarm that has fired and is awaiting dismissal, if any.
-  AlarmModel? get ringing => _ringing;
+  /// The alarm that is currently ringing and awaiting dismissal, if any.
+  AlarmModel? get ringing => _ringingQueue.isEmpty ? null : _ringingQueue.first;
 
   Future<void> load() async {
     _alarms.addAll(await AlarmStorage.load());
@@ -40,7 +40,7 @@ class AlarmController extends ChangeNotifier {
         changed = true;
 
         NotificationService.cancel(alarm.id);
-        _ringing ??= alarm;
+        _ringingQueue.add(alarm);
       }
     }
 
@@ -58,9 +58,12 @@ class AlarmController extends ChangeNotifier {
     return NotificationService.requestNotificationPermission();
   }
 
+  /// Generates a collision-free, monotonic notification ID.
+  int _nextId() => DateTime.now().microsecondsSinceEpoch;
+
   Future<void> add(TimeOfDay picked) async {
     final scheduled = _nextSchedule(picked);
-    final id = scheduled.millisecondsSinceEpoch ~/ 1000;
+    final id = _nextId();
 
     await NotificationService.scheduleAlarm(
       id: id,
@@ -77,18 +80,17 @@ class AlarmController extends ChangeNotifier {
   Future<void> edit(int index, TimeOfDay picked) async {
     final oldAlarm = _alarms[index];
     final scheduled = _nextSchedule(picked);
-    final newId = scheduled.millisecondsSinceEpoch ~/ 1000;
 
     await NotificationService.cancel(oldAlarm.id);
     await NotificationService.scheduleAlarm(
-      id: newId,
+      id: oldAlarm.id,
       dateTime: scheduled,
       title: '⏰ Alarm',
       body: 'It\'s time!',
     );
 
     _alarms[index] = AlarmModel(
-      id: newId,
+      id: oldAlarm.id,
       scheduledAt: scheduled,
       active: true,
     );
@@ -104,7 +106,7 @@ class AlarmController extends ChangeNotifier {
       if (scheduled.isBefore(DateTime.now())) {
         scheduled = scheduled.add(const Duration(days: 1));
         alarm = _alarms[index] = AlarmModel(
-          id: scheduled.millisecondsSinceEpoch ~/ 1000,
+          id: alarm.id,
           scheduledAt: scheduled,
           active: true,
         );
@@ -134,7 +136,33 @@ class AlarmController extends ChangeNotifier {
   }
 
   void dismissRinging() {
-    _ringing = null;
+    if (_ringingQueue.isEmpty) return;
+    _ringingQueue.removeAt(0);
+    notifyListeners();
+  }
+
+  /// Snoozes the currently ringing alarm by 5 minutes.
+  Future<void> snooze() async {
+    if (_ringingQueue.isEmpty) return;
+    final alarm = _ringingQueue.removeAt(0);
+    final newScheduled = DateTime.now().add(const Duration(minutes: 5));
+
+    await NotificationService.scheduleAlarm(
+      id: alarm.id,
+      dateTime: newScheduled,
+      title: '⏰ Alarm',
+      body: 'It\'s time!',
+    );
+
+    final index = _alarms.indexWhere((a) => a.id == alarm.id);
+    if (index != -1) {
+      _alarms[index] = AlarmModel(
+        id: alarm.id,
+        scheduledAt: newScheduled,
+        active: true,
+      );
+      await AlarmStorage.save(_alarms);
+    }
     notifyListeners();
   }
 

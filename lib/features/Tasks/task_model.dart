@@ -14,4 +14,11 @@ class TaskModel {
       done: json['done'] as bool? ?? false,
     );
   }
+
+  /// Stable comparator: incomplete tasks first, complete tasks last.
+  /// Returns 0 for same-state tasks to preserve insertion order.
+  static int compareForDisplay(TaskModel a, TaskModel b) {
+    if (a.done != b.done) return a.done ? 1 : -1;
+    return 0;
+  }
 }

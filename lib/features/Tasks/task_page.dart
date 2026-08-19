@@ -55,7 +55,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
   void _toggleTask(int index) {
     tasks[index].done = !tasks[index].done;
-    tasks.sort((a, b) => a.done ? 1 : -1);
+    tasks.sort(TaskModel.compareForDisplay);
     setState(() {});
     _saveTasks();
   }

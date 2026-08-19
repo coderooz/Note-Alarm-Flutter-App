@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced inline empty-state text with a reusable `EmptyState` widget.
 - Refreshed README with current features, structure, and dependencies.
 
+### Fixed
+- Snooze now reschedules the alarm +5 minutes instead of behaving like Dismiss.
+- Multiple alarms firing in the same tick are queued and ring sequentially instead of only the first one ringing.
+- Alarm IDs are collision-free (microseconds) and reused on edit/toggle instead of being recomputed from time.
+- Task sorting now uses a transitive, stable comparator that reliably keeps completed tasks at the bottom.
+- Alarm tile countdown updates every second while the alarm is active instead of going stale between rebuilds.
+
 ## [1.0.0] - 2026-08-17
 
 ### Added
