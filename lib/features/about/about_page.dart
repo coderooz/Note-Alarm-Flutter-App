@@ -8,13 +8,18 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Icon(Icons.alarm, size: 72, color: colorScheme.primary),
+          Center(
+            child: Image.asset(
+              'assets/images/app_icons/logo.png',
+              width: 120,
+              height: 120,
+            ),
+          ),
           const SizedBox(height: 12),
           const Text(
             'Note Alarm',

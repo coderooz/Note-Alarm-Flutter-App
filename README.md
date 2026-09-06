@@ -183,8 +183,9 @@ Contributions are welcome! Please read:
 
 ## 👨‍💻 Author
 
-Created with ❤️ by **Coderooz**
-GitHub: [https://github.com/coderooz](https://github.com/coderooz)
+Created with ❤️ by **[Coderooz](https://www.coderooz.in)**
+
+**GitHub**: [https://github.com/coderooz](https://github.com/coderooz)
 
 ---
 
